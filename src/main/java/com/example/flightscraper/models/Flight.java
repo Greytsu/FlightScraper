@@ -23,6 +23,7 @@ public class Flight {
     private String arr_icao;
     private String airline_icao;
     private String airline_iata;
+    private String flag;
 
     @OneToMany(mappedBy = "flight", orphanRemoval = true)
     private List<FlightInfo> flightInfos = new ArrayList<>();

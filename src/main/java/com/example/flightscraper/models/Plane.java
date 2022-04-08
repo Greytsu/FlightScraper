@@ -16,7 +16,6 @@ public class Plane {
 
     @Id
     private String reg_number;
-    private String flag;
     private String aircraft_icao;
 
     @OneToMany(mappedBy = "plane", orphanRemoval = true)

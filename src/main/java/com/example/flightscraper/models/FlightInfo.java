@@ -19,7 +19,7 @@ public class FlightInfo {
 
     @ManyToOne
     @JoinColumn(name = "flight_hex")
-    private Flight flight;
+    private com.example.flightscraper.models.Flight flight;
 
     private double lat;
     private double lng;
