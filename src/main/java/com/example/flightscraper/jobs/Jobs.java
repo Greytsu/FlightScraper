@@ -1,14 +1,15 @@
 package com.example.flightscraper.jobs;
 
 import com.example.flightscraper.helper.AirLabsHelper;
+import com.example.flightscraper.helper.PlaneFetcher;
 import com.example.flightscraper.models.AirLabsFlight;
-import com.example.flightscraper.models.Flight;
-import com.example.flightscraper.models.FlightInfo;
 import com.example.flightscraper.models.Plane;
 import com.example.flightscraper.services.AirLabsService;
 import com.example.flightscraper.services.FlightInfoService;
 import com.example.flightscraper.services.FlightService;
 import com.example.flightscraper.services.PlaneService;
+import com.example.flightscraper.threads.FetchPlanesThread;
+import com.example.flightscraper.utils.SublistUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
@@ -19,7 +20,8 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
+import static java.lang.String.valueOf;
 
 @Component
 @RequiredArgsConstructor
@@ -36,56 +38,45 @@ public class Jobs {
 
     @PostConstruct
     //@Scheduled(cron = "0/60 * * * * *")
-    public void launchJob() {
+    public void launchJob_sync() {
 
         logger.info("START JOB");
 
         try{
             List<AirLabsFlight> airLabsFlightList = AirLabsHelper.getAirLabsFlights(airLabsService);
 
-            List<Plane> planes = new ArrayList<>();
-            List<Flight> flights = new ArrayList<>();
-            List<FlightInfo> flightInfos = new ArrayList<>();
+            PlaneFetcher.work(airLabsFlightList, planeService, flightService, flightInfoService);
 
-            for (AirLabsFlight airLabsFlight : airLabsFlightList) {
+        }catch (IOException ex){
+            ex.printStackTrace();
+        }
 
-                Plane plane = airLabsFlight.getPlane();
-                Optional<Plane> optPlane = planeService.findPlaneByRegNumber(plane.getRegNumber());
-                optPlane.ifPresent(value -> plane.setId(value.getId()));
+        logger.info("END JOB");
+    }
+
+    //@PostConstruct
+    //@Scheduled(cron = "0/60 * * * * *")
+    public void launchJob_async() {
+
+        logger.info("START ASYNC JOB");
+
+        try{
+            List<AirLabsFlight> airLabsFlightList = AirLabsHelper.getAirLabsFlights(airLabsService);
+            List<List<AirLabsFlight>> batches = SublistUtils.getBatches(airLabsFlightList, 100);
+            List<FetchPlanesThread> planeFetchers = new ArrayList<>();
 
 
-                Flight flight = airLabsFlight.getFlight(plane);
-                Optional<Flight> optFlight = flightService.findByHex(flight.getHex());
-                optFlight.ifPresent(value -> flight.setId(value.getId()));
-
-                FlightInfo flightInfo = airLabsFlight.getFlightInfo(flight);
-
-                plane.getFlights().add(flight);
-//                flight.getFlightInfos().add(flightInfo);
-
-                planes.add(plane);
-                flights.add(flight);
-                flightInfos.add(flightInfo);
-
-                System.out.println(plane);
-//                System.out.println(flight);
-//                System.out.println(flightInfo);
-
+            for (int i = 0; i < batches.size(); i++) {
+                planeFetchers.add(new FetchPlanesThread(valueOf(i), batches.get(i), planeService, flightService, flightInfoService));
+                planeFetchers.get(planeFetchers.size()-1).start();
             }
-
-
-            System.out.println("Nb planes : " + planes.size());
-            planes = planeService.savePlanes(planes);
-            flights = flightService.saveFlights(flights);
-            flightInfos = flightInfoService.saveFlightInfos(flightInfos);
-
-            System.out.println("END");
-
 
         }catch (IOException ex){
 
             System.out.println("ERROR - " + ex);
 
         }
+
+        logger.info("END ASYNC JOB");
     }
 }
