@@ -11,8 +11,6 @@ import com.example.flightscraper.services.FlightService;
 import com.example.flightscraper.services.PlaneService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -26,19 +24,18 @@ import java.util.Optional;
 @Log4j2
 public class Jobs {
 
-    Logger logger = LoggerFactory.getLogger(Jobs.class);
     private final PlaneService planeService;
     private final FlightService flightService;
     private final FlightInfoService flightInfoService;
     private final AirLabsService airLabsService;
 
-    private List<Plane> planes = new ArrayList<>();
+    private final List<Plane> planes = new ArrayList<>();
 
     @PostConstruct
     //@Scheduled(cron = "0/60 * * * * *")
-    public void launchJob() {
+    public void fetchPlanes() {
 
-        logger.info("START JOB");
+        log.info("FETCHING AIRLABS");
 
         try{
             List<AirLabsFlight> airLabsFlightList = AirLabsHelper.getAirLabsFlights(airLabsService);
@@ -49,43 +46,29 @@ public class Jobs {
 
             for (AirLabsFlight airLabsFlight : airLabsFlightList) {
 
-                Plane plane = airLabsFlight.getPlane();
-                Optional<Plane> optPlane = planeService.findPlaneByRegNumber(plane.getRegNumber());
-                optPlane.ifPresent(value -> plane.setId(value.getId()));
+                Optional<Plane> optPlane = airLabsFlight.getPlane();
+                if(optPlane.isPresent()){
+                    Plane plane =optPlane.get();
+                    Optional<Flight> optFlight = airLabsFlight.getFlight(plane);
+                    if (optFlight.isPresent()){
+                        Flight flight = optFlight.get();
+                        FlightInfo flightInfo = airLabsFlight.getFlightInfo(flight);
 
-
-                Flight flight = airLabsFlight.getFlight(plane);
-                Optional<Flight> optFlight = flightService.findByHex(flight.getHex());
-                optFlight.ifPresent(value -> flight.setId(value.getId()));
-
-                FlightInfo flightInfo = airLabsFlight.getFlightInfo(flight);
-
-                plane.getFlights().add(flight);
-//                flight.getFlightInfos().add(flightInfo);
-
-                planes.add(plane);
-                flights.add(flight);
-                flightInfos.add(flightInfo);
-
-                System.out.println(plane);
-//                System.out.println(flight);
-//                System.out.println(flightInfo);
-
+                        planes.add(plane);
+                        flights.add(flight);
+                        flightInfos.add(flightInfo);
+                    }
+                }
             }
 
+            planeService.savePlanes(planes);
+            flightService.saveFlights(flights);
+            flightInfoService.saveFlightInfos(flightInfos);
 
-            System.out.println("Nb planes : " + planes.size());
-            planes = planeService.savePlanes(planes);
-            flights = flightService.saveFlights(flights);
-            flightInfos = flightInfoService.saveFlightInfos(flightInfos);
-
-            System.out.println("END");
-
+            log.info(planes.size() + " PLANE DATA FETCHED");
 
         }catch (IOException ex){
-
-            System.out.println("ERROR - " + ex);
-
+            ex.printStackTrace();
         }
     }
 }

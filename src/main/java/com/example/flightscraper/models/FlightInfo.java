@@ -28,7 +28,6 @@ public class FlightInfo {
     private Date updated;
     private String status;
 
-
     @ManyToOne
     @JoinColumn(name = "flight_hex")
     private Flight flight;

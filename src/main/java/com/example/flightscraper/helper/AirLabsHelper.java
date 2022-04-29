@@ -1,9 +1,8 @@
 package com.example.flightscraper.helper;
 
-import com.example.flightscraper.interfaces.RetrofitInterface;
+import com.example.flightscraper.retrofit.AirLabsInterface;
 import com.example.flightscraper.models.AirLabsFlight;
 import com.example.flightscraper.models.ApiResponse;
-import com.example.flightscraper.models.Flight;
 import com.example.flightscraper.services.AirLabsService;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -16,16 +15,16 @@ public class AirLabsHelper {
 
     public static List<AirLabsFlight> getAirLabsFlights(AirLabsService airLabsService) throws IOException {
 
-        RetrofitInterface retrofitInterface = airLabsService.getRetrofitInterface();
+        AirLabsInterface airLabsInterface = airLabsService.getRetrofitInterface();
 
-        Call<ApiResponse<AirLabsFlight>> callback = retrofitInterface.getFlights();
+        Call<ApiResponse<AirLabsFlight>> callback = airLabsInterface.getFlights();
 
         Response<ApiResponse<AirLabsFlight>> response = callback.execute();
 
         ApiResponse<AirLabsFlight> apiResponse = response.body();
-        List<AirLabsFlight> airLabsFlight = new ArrayList<>(apiResponse.getResponse());
 
-        return airLabsFlight;
+        assert apiResponse != null;
+        return new ArrayList<>(apiResponse.getResponse());
 
     }
 

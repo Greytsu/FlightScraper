@@ -4,8 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Id;
-import java.sql.Timestamp;
-import java.util.Date;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -58,12 +57,12 @@ public class AirLabsFlight {
         this.status = status;
     }
 
-    public Plane getPlane(){
-        return new Plane(this);
+    public Optional<Plane> getPlane(){
+        return Plane.getPlane(this);
     }
 
-    public Flight getFlight(Plane plane){
-        return new Flight(this, plane);
+    public Optional<Flight> getFlight(Plane plane){
+        return Flight.getInstance(this, plane);
     }
 
     public FlightInfo getFlightInfo(Flight flight){

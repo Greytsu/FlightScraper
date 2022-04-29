@@ -1,14 +1,13 @@
 package com.example.flightscraper.models;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.Tolerate;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -17,10 +16,6 @@ import java.util.List;
 public class Flight {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
-    private String id;
-    @Column(nullable = false)
     private String hex;
     private String flight_number;
     private String flight_icao;
@@ -40,26 +35,42 @@ public class Flight {
     @JoinColumn(name = "plane_reg_number")
     private Plane plane;
 
-    public Flight(AirLabsFlight airLabsFlight, Plane plane) {
-        this.hex = airLabsFlight.getHex();
-        this.flight_number = airLabsFlight.getFlight_number();
-        this.flight_icao = airLabsFlight.getFlight_icao();
-        this.flight_iata = airLabsFlight.getFlight_iata();
-        this.dep_iata = airLabsFlight.getDep_iata();
-        this.dep_icao = airLabsFlight.getDep_icao();
-        this.arr_iata = airLabsFlight.getArr_iata();
-        this.arr_icao = airLabsFlight.getArr_icao();
-        this.airline_icao = airLabsFlight.getAirline_icao();
-        this.airline_iata = airLabsFlight.getAirline_iata();
-        this.flag = airLabsFlight.getFlag();
+    public Flight(String hex, String flight_number, String flight_icao, String flight_iata, String dep_iata, String dep_icao, String arr_iata, String arr_icao, String airline_icao, String airline_iata, String flag, Plane plane) {
+        this.hex = hex;
+        this.flight_number = flight_number;
+        this.flight_icao = flight_icao;
+        this.flight_iata = flight_iata;
+        this.dep_iata = dep_iata;
+        this.dep_icao = dep_icao;
+        this.arr_iata = arr_iata;
+        this.arr_icao = arr_icao;
+        this.airline_icao = airline_icao;
+        this.airline_iata = airline_iata;
+        this.flag = flag;
         this.plane = plane;
+    }
+
+    public static Optional<Flight> getInstance(AirLabsFlight airLabsFlight, Plane plane){
+        if (null == airLabsFlight.getHex() || airLabsFlight.getHex().isBlank())
+            return Optional.empty();
+        return Optional.of(new Flight(airLabsFlight.getHex(),
+                airLabsFlight.getFlight_number(),
+                airLabsFlight.getFlight_icao(),
+                airLabsFlight.getFlight_iata(),
+                airLabsFlight.getDep_iata(),
+                airLabsFlight.getDep_icao(),
+                airLabsFlight.getArr_iata(),
+                airLabsFlight.getArr_icao(),
+                airLabsFlight.getAirline_icao(),
+                airLabsFlight.getAirline_iata(),
+                airLabsFlight.getFlag(),
+                plane));
     }
 
     @Override
     public String toString() {
         return "Flight{" +
-                "id='" + id + '\'' +
-                ", hex='" + hex + '\'' +
+                "hex='" + hex + '\'' +
                 ", flight_number='" + flight_number + '\'' +
                 ", flight_icao='" + flight_icao + '\'' +
                 ", flight_iata='" + flight_iata + '\'' +

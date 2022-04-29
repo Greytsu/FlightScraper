@@ -1,6 +1,6 @@
 package com.example.flightscraper.services;
 
-import com.example.flightscraper.interfaces.RetrofitInterface;
+import com.example.flightscraper.retrofit.AirLabsInterface;
 import org.springframework.stereotype.Service;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @Service
 public class AirLabsService {
 
-    RetrofitInterface retrofitInterface;
+    AirLabsInterface airLabsInterface;
 
     public AirLabsService() {
         Retrofit retrofit = new Retrofit.Builder()
@@ -16,11 +16,11 @@ public class AirLabsService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        this.retrofitInterface = retrofit.create(RetrofitInterface.class);
+        this.airLabsInterface = retrofit.create(AirLabsInterface.class);
     }
 
-    public RetrofitInterface getRetrofitInterface() {
+    public AirLabsInterface getRetrofitInterface() {
 
-        return retrofitInterface;
+        return airLabsInterface;
     }
 }
