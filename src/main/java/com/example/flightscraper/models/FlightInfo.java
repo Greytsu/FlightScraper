@@ -16,9 +16,8 @@ import java.util.Date;
 public class FlightInfo {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
     private double lat;
     private double lng;
     private int alt;

@@ -2,6 +2,7 @@ package com.example.flightscraper.retrofit;
 
 import com.example.flightscraper.models.AirLabsFlight;
 import com.example.flightscraper.models.ApiResponse;
+import lombok.RequiredArgsConstructor;
 import retrofit2.Call;
 import retrofit2.http.GET;
 
