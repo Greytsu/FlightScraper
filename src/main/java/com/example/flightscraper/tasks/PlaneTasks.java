@@ -1,4 +1,4 @@
-package com.example.flightscraper.jobs;
+package com.example.flightscraper.tasks;
 
 import com.example.flightscraper.helper.AirLabsHelper;
 import com.example.flightscraper.models.AirLabsFlight;
@@ -22,7 +22,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Log4j2
-public class Jobs {
+public class PlaneTasks {
 
     private final PlaneService planeService;
     private final FlightService flightService;
