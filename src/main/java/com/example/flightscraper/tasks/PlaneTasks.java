@@ -11,6 +11,7 @@ import com.example.flightscraper.services.FlightService;
 import com.example.flightscraper.services.PlaneService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -29,10 +30,8 @@ public class PlaneTasks {
     private final FlightInfoService flightInfoService;
     private final AirLabsService airLabsService;
 
-    private final List<Plane> planes = new ArrayList<>();
 
-    @PostConstruct
-    //@Scheduled(cron = "0/60 * * * * *")
+    @Scheduled(cron = "0 */45 * * * *")
     public void fetchPlanes() {
 
         log.info("FETCHING AIRLABS");
@@ -65,10 +64,11 @@ public class PlaneTasks {
             flightService.saveFlights(flights);
             flightInfoService.saveFlightInfos(flightInfos);
 
-            log.info(planes.size() + " PLANE DATA FETCHED");
+            log.info(planes.size() + " PLANES DATA FETCHED");
 
         }catch (IOException ex){
             ex.printStackTrace();
         }
     }
+
 }
