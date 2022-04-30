@@ -6,12 +6,14 @@ import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Optional;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(name = "Plane")
 public class Plane {
 
     @Id

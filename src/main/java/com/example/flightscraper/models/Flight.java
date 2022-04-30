@@ -1,18 +1,17 @@
 package com.example.flightscraper.models;
 
-import lombok.*;
-import lombok.experimental.Tolerate;
-import org.hibernate.annotations.GenericGenerator;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(name = "Flight")
 public class Flight {
 
     @Id
@@ -27,9 +26,6 @@ public class Flight {
     private String airline_icao;
     private String airline_iata;
     private String flag;
-
-    @OneToMany(mappedBy = "flight", orphanRemoval = true)
-    private List<FlightInfo> flightInfos = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "plane_reg_number")
